@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  :root {
+    --sidebar-w: 260px;
+  }
+
+  ::selection {
+    background: #e8b84b44;
+    color: #0d2818;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: #c2c9b9;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: #a0a89a; }
+}
+
+@layer components {
+  /* ── Sidebar ── */
+  .sidebar {
+    @apply fixed top-0 left-0 h-full z-30 flex flex-col;
+    width: var(--sidebar-w);
+    background: #0d2818;
+  }
+
+  /* ── Card ── */
+  .card {
+    @apply bg-white rounded-2xl border border-ash-200 shadow-sm;
+  }
+
+  /* ── Inputs ── */
+  .input {
+    @apply w-full px-4 py-2.5 rounded-xl border border-ash-200 bg-white text-forest-800
+           placeholder:text-ash-300 text-sm
+           focus:outline-none focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500
+           transition-all duration-150;
+  }
+
+  .textarea {
+    @apply input resize-none;
+  }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-xl
+           bg-gold-500 hover:bg-gold-600 text-forest-900 font-medium text-sm
+           transition-all duration-150 shadow-sm hover:shadow-md
+           active:scale-[0.98] cursor-pointer;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-xl
+           text-forest-700 hover:bg-ash-100 font-medium text-sm
+           transition-all duration-150 cursor-pointer;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg
+           text-red-600 hover:bg-red-50 text-sm
+           transition-all duration-150 cursor-pointer;
+  }
+
+  /* ── Status badge ── */
+  .badge-draft  { @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-ash-100 text-ash-300; }
+  .badge-active { @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700; }
+  .badge-closed { @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-600; }
+
+  /* ── Table ── */
+  .table-head { @apply text-xs font-medium text-ash-300 uppercase tracking-wider; }
+  .table-cell { @apply py-3.5 px-4 text-sm text-forest-800; }
+  .table-row  { @apply border-b border-ash-100 last:border-0 hover:bg-ash-50 transition-colors; }
+}
+
+@layer utilities {
+  .text-gold { color: #e8b84b; }
+  .gold-dot  { @apply w-1.5 h-1.5 rounded-full bg-gold-500 inline-block; }
+}
