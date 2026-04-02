@@ -11,10 +11,9 @@ function db() {
   return _db;
 }
 
-// Helper that always returns a plain array
+// Always returns a plain array — safe with Neon 1.x return types
 async function q(strings: TemplateStringsArray, ...values: unknown[]): Promise<any[]> {
-  const sql = db();
-  const result = await sql(strings, ...values);
+  const result = await db()(strings, ...values);
   return Array.isArray(result) ? result : [];
 }
 
@@ -40,7 +39,9 @@ export async function getActiveElections() {
   return q`SELECT * FROM elections WHERE status = 'active' ORDER BY start_date`;
 }
 
-export async function createElection(data: { title: string; description: string; start_date: string; end_date: string }) {
+export async function createElection(data: {
+  title: string; description: string; start_date: string; end_date: string;
+}) {
   const rows = await q`
     INSERT INTO elections (title, description, start_date, end_date, status)
     VALUES (${data.title}, ${data.description}, ${data.start_date}, ${data.end_date}, 'draft')
@@ -54,6 +55,10 @@ export async function updateElectionStatus(id: number, status: string) {
 }
 
 export async function deleteElection(id: number) {
+  // Must delete votes + voter_records first (FK refs to elections without CASCADE)
+  await q`DELETE FROM votes        WHERE election_id = ${id}`;
+  await q`DELETE FROM voter_records WHERE election_id = ${id}`;
+  // positions → candidates cascade automatically (schema has ON DELETE CASCADE)
   await q`DELETE FROM elections WHERE id = ${id}`;
 }
 
@@ -62,12 +67,15 @@ export async function deleteElection(id: number) {
 export async function getPositionsByElection(electionId: number) {
   return q`
     SELECT p.*, COUNT(c.id)::int AS candidate_count
-    FROM positions p LEFT JOIN candidates c ON c.position_id = p.id
+    FROM positions p
+    LEFT JOIN candidates c ON c.position_id = p.id
     WHERE p.election_id = ${electionId}
     GROUP BY p.id ORDER BY p.id`;
 }
 
-export async function createPosition(data: { election_id: number; title: string; max_votes: number }) {
+export async function createPosition(data: {
+  election_id: number; title: string; max_votes: number;
+}) {
   const rows = await q`
     INSERT INTO positions (election_id, title, max_votes)
     VALUES (${data.election_id}, ${data.title}, ${data.max_votes}) RETURNING *`;
@@ -91,10 +99,13 @@ export async function getCandidatesByElection(electionId: number) {
     WHERE p.election_id = ${electionId} ORDER BY p.id, c.name`;
 }
 
-export async function createCandidate(data: { position_id: number; name: string; class_name: string; bio: string }) {
+export async function createCandidate(data: {
+  position_id: number; name: string; class_name: string; bio: string; photo_url: string;
+}) {
   const rows = await q`
-    INSERT INTO candidates (position_id, name, class_name, bio)
-    VALUES (${data.position_id}, ${data.name}, ${data.class_name}, ${data.bio}) RETURNING *`;
+    INSERT INTO candidates (position_id, name, class_name, bio, photo_url)
+    VALUES (${data.position_id}, ${data.name}, ${data.class_name}, ${data.bio}, ${data.photo_url})
+    RETURNING *`;
   return rows[0];
 }
 
@@ -113,7 +124,9 @@ export async function getStudentByStudentId(studentId: string) {
   return rows[0] ?? null;
 }
 
-export async function createStudent(data: { student_id: string; name: string; class_name: string; pin_hash: string }) {
+export async function createStudent(data: {
+  student_id: string; name: string; class_name: string; pin_hash: string;
+}) {
   const rows = await q`
     INSERT INTO students (student_id, name, class_name, pin_hash)
     VALUES (${data.student_id}, ${data.name}, ${data.class_name}, ${data.pin_hash})
@@ -121,17 +134,43 @@ export async function createStudent(data: { student_id: string; name: string; cl
   return rows[0];
 }
 
-export async function upsertStudent(data: { student_id: string; name: string; class_name: string; pin_hash: string }) {
+export async function updateStudent(id: number, data: {
+  name: string; class_name: string; pin_hash?: string;
+}) {
+  if (data.pin_hash) {
+    const rows = await q`
+      UPDATE students
+      SET name = ${data.name}, class_name = ${data.class_name}, pin_hash = ${data.pin_hash}
+      WHERE id = ${id}
+      RETURNING id, student_id, name, class_name, created_at`;
+    return rows[0];
+  } else {
+    const rows = await q`
+      UPDATE students
+      SET name = ${data.name}, class_name = ${data.class_name}
+      WHERE id = ${id}
+      RETURNING id, student_id, name, class_name, created_at`;
+    return rows[0];
+  }
+}
+
+export async function upsertStudent(data: {
+  student_id: string; name: string; class_name: string; pin_hash: string;
+}) {
   const rows = await q`
     INSERT INTO students (student_id, name, class_name, pin_hash)
     VALUES (${data.student_id}, ${data.name}, ${data.class_name}, ${data.pin_hash})
     ON CONFLICT (student_id) DO UPDATE
-      SET name = EXCLUDED.name, class_name = EXCLUDED.class_name, pin_hash = EXCLUDED.pin_hash
+      SET name = EXCLUDED.name,
+          class_name = EXCLUDED.class_name,
+          pin_hash = EXCLUDED.pin_hash
     RETURNING id, student_id, name, class_name, created_at`;
   return rows[0];
 }
 
 export async function deleteStudent(id: number) {
+  // Remove voter_records first to avoid FK constraint
+  await q`DELETE FROM voter_records WHERE student_id = ${id}`;
   await q`DELETE FROM students WHERE id = ${id}`;
 }
 
@@ -139,44 +178,75 @@ export async function deleteStudent(id: number) {
 
 export async function hasStudentVoted(electionId: number, studentId: number) {
   const rows = await q`
-    SELECT 1 FROM voter_records WHERE election_id = ${electionId} AND student_id = ${studentId}`;
+    SELECT 1 FROM voter_records
+    WHERE election_id = ${electionId} AND student_id = ${studentId}`;
   return rows.length > 0;
 }
 
-export async function castVotes(electionId: number, studentId: number, selections: { position_id: number; candidate_id: number }[]) {
+export async function castVotes(
+  electionId: number,
+  studentId: number,
+  selections: { position_id: number; candidate_id: number }[]
+) {
   await q`INSERT INTO voter_records (election_id, student_id) VALUES (${electionId}, ${studentId})`;
   for (const sel of selections) {
-    await q`INSERT INTO votes (election_id, position_id, candidate_id) VALUES (${electionId}, ${sel.position_id}, ${sel.candidate_id})`;
+    await q`
+      INSERT INTO votes (election_id, position_id, candidate_id)
+      VALUES (${electionId}, ${sel.position_id}, ${sel.candidate_id})`;
   }
 }
 
 // ── Results ───────────────────────────────────────────────────────────────────
 
 export async function getElectionResults(electionId: number) {
-  const voterRows   = await q`SELECT COUNT(*)::int AS total_voted FROM voter_records WHERE election_id = ${electionId}`;
+  const voterRows   = await q`SELECT COUNT(*)::int AS total_voted   FROM voter_records WHERE election_id = ${electionId}`;
   const studentRows = await q`SELECT COUNT(*)::int AS total_students FROM students`;
+
   const rows = await q`
     SELECT
-      p.id AS position_id, p.title AS position_title, p.max_votes,
-      c.id AS candidate_id, c.name AS candidate_name, c.class_name, c.bio,
+      p.id    AS position_id,
+      p.title AS position_title,
+      p.max_votes,
+      c.id        AS candidate_id,
+      c.name      AS candidate_name,
+      c.class_name,
+      c.bio,
+      c.photo_url,
       COUNT(v.id)::int AS vote_count
     FROM positions p
     JOIN candidates c ON c.position_id = p.id
     LEFT JOIN votes v ON v.candidate_id = c.id AND v.election_id = ${electionId}
     WHERE p.election_id = ${electionId}
-    GROUP BY p.id, p.title, p.max_votes, c.id, c.name, c.class_name, c.bio
+    GROUP BY p.id, p.title, p.max_votes, c.id, c.name, c.class_name, c.bio, c.photo_url
     ORDER BY p.id, vote_count DESC, c.name`;
 
-  const positions: Record<number, { id: number; title: string; max_votes: number; candidates: any[] }> = {};
+  const positions: Record<number, {
+    id: number; title: string; max_votes: number;
+    candidates: {
+      id: number; name: string; class_name: string;
+      bio: string; photo_url: string; vote_count: number;
+    }[];
+  }> = {};
+
   for (const row of rows) {
     if (!positions[row.position_id]) {
-      positions[row.position_id] = { id: row.position_id, title: row.position_title, max_votes: row.max_votes, candidates: [] };
+      positions[row.position_id] = {
+        id: row.position_id, title: row.position_title,
+        max_votes: row.max_votes, candidates: [],
+      };
     }
-    positions[row.position_id].candidates.push({ id: row.candidate_id, name: row.candidate_name, class_name: row.class_name, bio: row.bio, vote_count: row.vote_count });
+    positions[row.position_id].candidates.push({
+      id:         row.candidate_id,
+      name:       row.candidate_name,
+      class_name: row.class_name,
+      bio:        row.bio,
+      photo_url:  row.photo_url,
+      vote_count: row.vote_count,
+    });
   }
 
   return {
-    total_voted:    (voterRows[0]?.total_voted   ?? 0) as number,
+    total_voted:    (voterRows[0]?.total_voted    ?? 0) as number,
     total_students: (studentRows[0]?.total_students ?? 0) as number,
     positions:      Object.values(positions),
   };

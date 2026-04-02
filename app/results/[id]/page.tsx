@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 
-type Candidate = { id:number; name:string; class_name:string; vote_count:number };
+type Candidate = { id:number; name:string; class_name:string; vote_count:number; photo_url:string };
 type Position  = { id:number; title:string; candidates:Candidate[] };
 type Election  = { id:number; title:string; description:string; status:string };
 type Results   = { election:Election; total_voted:number; total_students:number; positions:Position[] };
@@ -239,9 +239,17 @@ export default function LiveResultsPage() {
                       {isLeader && <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"#e8b84b", borderRadius:"9999px 9999px 0 0" }}/>}
 
                       <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:"clamp(.75rem,2vw,1.25rem)" }}>
-                        {/* rank badge */}
-                        <div style={{ width:"clamp(36px,6vw,52px)", height:"clamp(36px,6vw,52px)", borderRadius:"50%",
-                          display:"flex", alignItems:"center", justifyContent:"center",
+                        {/* rank badge or photo */}
+                        {c.photo_url ? (
+                          <img src={c.photo_url} alt={c.name}
+                            style={{ width:"clamp(44px,8vw,64px)", height:"clamp(44px,8vw,64px)",
+                              borderRadius:"50%", objectFit:"cover", flexShrink:0,
+                              border: isLeader ? "3px solid #e8b84b" : "2px solid rgba(255,255,255,.15)" }}
+                            onError={e => { e.currentTarget.style.display="none"; (e.currentTarget.nextSibling as HTMLElement).style.display="flex"; }}
+                          />
+                        ) : null}
+                        <div style={{ width:"clamp(44px,8vw,64px)", height:"clamp(44px,8vw,64px)", borderRadius:"50%",
+                          display: c.photo_url ? "none" : "flex", alignItems:"center", justifyContent:"center",
                           background: isLeader ? "#e8b84b" : "rgba(255,255,255,.1)",
                           color: isLeader ? "#0d2818" : "rgba(255,255,255,.5)",
                           fontFamily:"var(--font-display)", fontWeight:700,

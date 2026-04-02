@@ -1,24 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { deleteStudent } from "@/lib/db";
-import { neon } from "@neondatabase/serverless";
+import { deleteStudent, updateStudent } from "@/lib/db";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const body = await req.json();
-    const { name, class_name, pin } = body;
-    const sql = neon(process.env.DATABASE_URL!);
+    const { name, class_name, pin } = await req.json();
 
+    if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
+
+    let pin_hash: string | undefined;
     if (pin) {
-      if (String(pin).length < 4) return NextResponse.json({ error: "PIN too short" }, { status: 400 });
-      const pin_hash = await bcrypt.hash(String(pin), 10);
-      const rows = await sql`UPDATE students SET name=${name}, class_name=${class_name}, pin_hash=${pin_hash} WHERE id=${Number(id)} RETURNING id, student_id, name, class_name, created_at`;
-      return NextResponse.json(rows[0]);
-    } else {
-      const rows = await sql`UPDATE students SET name=${name}, class_name=${class_name} WHERE id=${Number(id)} RETURNING id, student_id, name, class_name, created_at`;
-      return NextResponse.json(rows[0]);
+      if (String(pin).length < 4) return NextResponse.json({ error: "PIN must be at least 4 characters" }, { status: 400 });
+      pin_hash = await bcrypt.hash(String(pin), 10);
     }
+
+    const student = await updateStudent(Number(id), { name, class_name: class_name ?? "", pin_hash });
+    if (!student) return NextResponse.json({ error: "Student not found" }, { status: 404 });
+    return NextResponse.json(student);
   } catch (err: unknown) {
     return NextResponse.json({ error: err instanceof Error ? err.message : "Error" }, { status: 500 });
   }
@@ -30,6 +29,6 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
     await deleteStudent(Number(id));
     return NextResponse.json({ success: true });
   } catch (err: unknown) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : String(err) }, { status: 500 });
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Error" }, { status: 500 });
   }
 }

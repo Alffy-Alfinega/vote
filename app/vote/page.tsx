@@ -2,7 +2,7 @@
 import { useState } from "react";
 
 type Election  = { id:number; title:string; description:string };
-type Candidate = { id:number; name:string; class_name:string; bio:string };
+type Candidate = { id:number; name:string; class_name:string; bio:string; photo_url:string };
 type Position  = { id:number; title:string; max_votes:number; candidates:Candidate[] };
 type Step = "login"|"ballot"|"done";
 
@@ -233,11 +233,17 @@ export default function VotePage() {
                       border:`2px solid ${sel ? "var(--color-gold-500)" : "var(--color-ash-200)"}`,
                       background: sel ? "color-mix(in srgb,var(--color-gold-500) 6%,white)" : "white",
                       cursor:"pointer", transition:"all .15s", display:"flex", alignItems:"center", gap:".875rem" }}>
-                    <div style={{ width:40,height:40,borderRadius:"50%",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",
-                      fontFamily:"var(--font-display)",fontWeight:700,fontSize:"1rem",
-                      background: sel ? "var(--color-gold-500)" : "var(--color-ash-100)",
-                      color: sel ? "var(--color-forest-900)" : "var(--color-forest-800)" }}>
-                      {c.name.charAt(0)}
+                    <div style={{ width:40,height:40,borderRadius:"50%",flexShrink:0,overflow:"hidden",
+                      border:`2px solid ${sel ? "var(--color-gold-500)" : "var(--color-ash-200)"}` }}>
+                      {c.photo_url && <img src={c.photo_url} alt={c.name}
+                        style={{ width:"100%",height:"100%",objectFit:"cover" }}
+                        onError={e => { (e.currentTarget as HTMLElement).style.display="none"; }}/>}
+                      <div style={{ width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",
+                        fontFamily:"var(--font-display)",fontWeight:700,fontSize:"1rem",
+                        background: sel ? "var(--color-gold-500)" : "var(--color-ash-100)",
+                        color: sel ? "var(--color-forest-900)" : "var(--color-forest-800)" }}>
+                        {c.name.charAt(0)}
+                      </div>
                     </div>
                     <div style={{ flex:1, minWidth:0 }}>
                       <p style={{ fontWeight:500, fontSize:".9375rem" }}>{c.name}</p>
