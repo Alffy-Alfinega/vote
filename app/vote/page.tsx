@@ -21,11 +21,28 @@ export default function VotePage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault(); setLoginLoading(true); setLoginErr("");
     try {
-      const res  = await fetch("/api/elections/active");
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      if (!data.length) throw new Error("No active elections right now.");
-      await loadBallot(data[0].id);
+      // 1. Get active election
+      const eRes  = await fetch("/api/elections/active");
+      const eData = await eRes.json();
+      if (!eRes.ok) throw new Error(eData.error);
+      if (!eData.length) throw new Error("No active elections right now.");
+      const activeElection = eData[0];
+
+      // 2. Validate credentials AND check for double voting before showing ballot
+      const checkRes = await fetch("/api/vote/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          student_id: login.student_id,
+          pin: login.pin,
+          election_id: activeElection.id,
+        }),
+      });
+      const checkData = await checkRes.json();
+      if (!checkRes.ok) throw new Error(checkData.error);
+
+      // 3. Credentials valid and not yet voted — load ballot
+      await loadBallot(activeElection.id);
     } catch (err: unknown) { setLoginErr(err instanceof Error ? err.message : "Error"); }
     finally { setLoginLoading(false); }
   }
@@ -138,8 +155,21 @@ export default function VotePage() {
                 autoComplete="current-password" inputMode="numeric" required />
             </div>
             {loginErr && (
-              <div style={{ background:"#fef2f2", border:"1px solid #fecaca", borderRadius:".75rem", padding:".75rem 1rem" }}>
-                <p style={{ fontSize:".875rem", color:"#dc2626" }}>{loginErr}</p>
+              <div style={{
+                borderRadius:".75rem", padding:".875rem 1rem",
+                background: loginErr.includes("already voted") ? "#fef3c7" : "#fef2f2",
+                border: `1px solid ${loginErr.includes("already voted") ? "#fcd34d" : "#fecaca"}`,
+              }}>
+                {loginErr.includes("already voted") && (
+                  <p style={{ fontSize:"1.25rem", marginBottom:".375rem" }}>🔒</p>
+                )}
+                <p style={{
+                  fontSize:".875rem",
+                  color: loginErr.includes("already voted") ? "#92400e" : "#dc2626",
+                  fontWeight: loginErr.includes("already voted") ? 500 : 400,
+                }}>
+                  {loginErr}
+                </p>
               </div>
             )}
             <button type="submit" className="btn-primary" style={{ width:"100%", marginTop:".25rem" }} disabled={loginLoading}>
