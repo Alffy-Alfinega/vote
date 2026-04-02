@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
+import bcrypt from "bcryptjs";
 
 export async function GET() {
   try {
@@ -44,13 +45,21 @@ export async function GET() {
       candidate_id INTEGER NOT NULL REFERENCES candidates(id),
       created_at TIMESTAMP NOT NULL DEFAULT NOW())`;
 
-    // Default admin: admin / admin123
-    await sql`INSERT INTO admins (username, password_hash)
-      VALUES ('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy')
-      ON CONFLICT (username) DO NOTHING`;
+    // Generate hash at runtime — never use hardcoded hashes
+    const password_hash = await bcrypt.hash("admin123", 10);
 
-    return NextResponse.json({ success: true, message: "Database ready. Login: admin / admin123" });
+    await sql`INSERT INTO admins (username, password_hash)
+      VALUES ('admin', ${password_hash})
+      ON CONFLICT (username) DO UPDATE SET password_hash = ${password_hash}`;
+
+    return NextResponse.json({
+      success: true,
+      message: "Database ready. Login: admin / admin123",
+    });
   } catch (err: unknown) {
-    return NextResponse.json({ success: false, error: err instanceof Error ? err.message : String(err) }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: err instanceof Error ? err.message : String(err) },
+      { status: 500 }
+    );
   }
 }
