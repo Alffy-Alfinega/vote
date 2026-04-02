@@ -83,6 +83,26 @@ export default function VotePage() {
         <div style={{ marginTop:"1.5rem", background:"var(--color-ash-50)", borderRadius:".75rem", padding:"1rem" }}>
           <p style={{ fontSize:".8125rem", color:"var(--color-ash-300)" }}>Your choices are anonymous and cannot be traced back to you.</p>
         </div>
+        <button
+          onClick={() => {
+            setStep("login");
+            setLogin({ student_id:"", pin:"" });
+            setSelections({});
+            setElection(null);
+            setPositions([]);
+          }}
+          style={{
+            marginTop:"1.5rem", width:"100%",
+            padding:".875rem", borderRadius:"1rem",
+            background:"var(--color-forest-800)", color:"white",
+            border:"none", cursor:"pointer",
+            fontFamily:"var(--font-display)", fontWeight:700, fontSize:"1.0625rem",
+            boxShadow:"0 4px 16px rgba(13,40,24,.2)",
+            transition:"opacity .15s",
+          }}
+        >
+          Thank you — Next Voter →
+        </button>
       </div>
     </div>
   );
