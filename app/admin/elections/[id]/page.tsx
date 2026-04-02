@@ -5,7 +5,7 @@ import Link from "next/link";
 
 type Election = { id:number; title:string; description:string; start_date:string; end_date:string; status:string };
 type Position  = { id:number; title:string; max_votes:number; candidate_count:number };
-type Candidate = { id:number; position_id:number; name:string; class_name:string; bio:string };
+type Candidate = { id:number; position_id:number; name:string; class_name:string; bio:string; photo_url:string };
 
 const STATUS_DOT: Record<string,string> = { draft:"#c2c9b9", active:"#10b981", closed:"#ef4444" };
 
@@ -32,7 +32,7 @@ export default function ElectionDetailPage() {
   const [posLoading, setPosLoading] = useState(false);
 
   const [showCand, setShowCand] = useState(false);
-  const [candForm, setCandForm] = useState({ position_id:"", name:"", class_name:"", bio:"" });
+  const [candForm, setCandForm] = useState({ position_id:"", name:"", class_name:"", bio:"", photo_url:"" });
   const [candLoading, setCandLoading] = useState(false);
 
   const [statusLoading, setStatusLoading] = useState(false);
@@ -68,7 +68,7 @@ export default function ElectionDetailPage() {
       const res = await fetch("/api/candidates", { method:"POST", headers:{"Content-Type":"application/json"},
         body:JSON.stringify({ ...candForm, position_id:Number(candForm.position_id) }) });
       if (!res.ok) throw new Error((await res.json()).error);
-      setCandForm({ position_id:"", name:"", class_name:"", bio:"" }); setShowCand(false); load();
+      setCandForm({ position_id:"", name:"", class_name:"", bio:"", photo_url:"" }); setShowCand(false); load();
     } catch (err: unknown) { setError(err instanceof Error ? err.message : "Error"); }
     finally { setCandLoading(false); }
   }
@@ -209,6 +209,18 @@ export default function ElectionDetailPage() {
                 </div>
                 <textarea className="input textarea" rows={2} placeholder="Short bio (optional)"
                   value={candForm.bio} onChange={e => setCandForm(p => ({...p, bio:e.target.value}))} />
+                <div>
+                  <label style={{ display:"block", fontSize:".75rem", color:"var(--color-ash-300)", marginBottom:".375rem" }}>Photo URL (optional)</label>
+                  <input className="input" placeholder="https://example.com/photo.jpg" value={candForm.photo_url}
+                    onChange={e => setCandForm(p => ({...p, photo_url:e.target.value}))} />
+                  {candForm.photo_url && (
+                    <div style={{ marginTop:".5rem", display:"flex", alignItems:"center", gap:".75rem" }}>
+                      <img src={candForm.photo_url} alt="preview" onError={e => (e.currentTarget.style.display="none")}
+                        style={{ width:40, height:40, borderRadius:"50%", objectFit:"cover", border:"2px solid var(--color-ash-200)" }}/>
+                      <span style={{ fontSize:".75rem", color:"var(--color-ash-300)" }}>Preview</span>
+                    </div>
+                  )}
+                </div>
                 <div style={{ display:"flex", gap:".5rem" }}>
                   <button type="submit" className="btn-primary" disabled={candLoading} style={{ fontSize:".875rem", padding:".625rem 1rem", minHeight:40 }}>
                     {candLoading ? "Saving…" : "Add Candidate"}
@@ -247,9 +259,16 @@ export default function ElectionDetailPage() {
                   <ul style={{ listStyle:"none", margin:0, padding:0 }}>
                     {(grouped[pos.id]??[]).map(c => (
                       <li key={c.id} style={{ padding:"1rem", borderBottom:"1px solid var(--color-ash-100)", display:"flex", alignItems:"center", gap:".875rem" }}>
-                        <div style={{ width:36,height:36,borderRadius:"50%",background:"rgba(13,40,24,.08)",display:"flex",alignItems:"center",
-                          justifyContent:"center",fontFamily:"var(--font-display)",fontWeight:700,flexShrink:0,fontSize:".9375rem" }}>
-                          {c.name.charAt(0)}
+                        <div style={{ width:36,height:36,borderRadius:"50%",flexShrink:0,overflow:"hidden",
+                          border:"2px solid var(--color-ash-100)" }}>
+                          {c.photo_url
+                            ? <img src={c.photo_url} alt={c.name} style={{ width:"100%",height:"100%",objectFit:"cover" }}
+                                onError={e => { e.currentTarget.style.display="none"; (e.currentTarget.nextSibling as HTMLElement).style.display="flex"; }}/>
+                            : null}
+                          <div style={{ width:"100%",height:"100%",background:"rgba(13,40,24,.08)",display:c.photo_url?"none":"flex",
+                            alignItems:"center",justifyContent:"center",fontFamily:"var(--font-display)",fontWeight:700,fontSize:".9375rem" }}>
+                            {c.name.charAt(0)}
+                          </div>
                         </div>
                         <div style={{ flex:1, minWidth:0 }}>
                           <p style={{ fontWeight:500, fontSize:".9375rem" }}>{c.name}</p>

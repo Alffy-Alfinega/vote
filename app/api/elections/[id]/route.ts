@@ -3,33 +3,34 @@ import { getElectionById, updateElectionStatus, deleteElection } from "@/lib/db"
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const election = await getElectionById(Number((await params).id));
+    const { id } = await params;
+    const election = await getElectionById(Number(id));
     if (!election) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(election);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Error" }, { status: 500 });
   }
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const { status } = await req.json();
-    const allowed = ["draft", "active", "closed"];
-    if (!allowed.includes(status)) {
+    if (!["draft","active","closed"].includes(status))
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
-    }
-    const election = await updateElectionStatus(Number((await params).id), status);
+    const election = await updateElectionStatus(Number(id), status);
     return NextResponse.json(election);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Error" }, { status: 500 });
   }
 }
 
 export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await deleteElection(Number((await params).id));
+    const { id } = await params;
+    await deleteElection(Number(id));
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Error" }, { status: 500 });
   }
 }
