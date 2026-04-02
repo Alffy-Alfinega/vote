@@ -79,13 +79,7 @@ export default function AdminLoginPage() {
             </button>
           </form>
 
-          <p style={{ fontSize:".75rem", color:"var(--color-ash-300)", marginTop:"1.25rem", textAlign:"center", lineHeight:1.6 }}>
-            Default: <code style={{ fontFamily:"monospace", background:"var(--color-ash-100)", padding:".125rem .375rem", borderRadius:".25rem" }}>admin</code>
-            {" / "}
-            <code style={{ fontFamily:"monospace", background:"var(--color-ash-100)", padding:".125rem .375rem", borderRadius:".25rem" }}>admin123</code>
-            <br/>
-            <span style={{ color:"var(--color-ash-200)" }}>If login fails, visit <code style={{ fontFamily:"monospace" }}>/api/setup</code> first</span>
-          </p>
+
         </div>
       </div>
     </div>
