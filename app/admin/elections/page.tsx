@@ -1,70 +1,68 @@
+export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { getElections } from "@/lib/db";
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string,string> = { draft:"badge-draft", active:"badge-active", closed:"badge-closed" };
-  const dot: Record<string,string> = { draft:"bg-ash-300", active:"bg-emerald-500", closed:"bg-red-400" };
+  const dot: Record<string,string> = { draft:"#c2c9b9", active:"#10b981", closed:"#ef4444" };
   return (
     <span className={map[status]??"badge-draft"}>
-      <span className={`w-1.5 h-1.5 rounded-full ${dot[status]??"bg-ash-300"}`}/>
+      <span style={{ width:6,height:6,borderRadius:"50%",background:dot[status]??"#c2c9b9",display:"inline-block" }}/>
       {status}
     </span>
   );
 }
 
 export default async function ElectionsPage() {
-  const elections = await getElections();
+  const elections = await getElections() as any[];
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto">
-      <div className="flex items-start justify-between gap-3 mb-6 sm:mb-8">
+    <div style={{ padding:"1rem", maxWidth:"72rem", margin:"0 auto" }}
+      className="sm:p-6 lg:p-8">
+
+      <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"1rem", marginBottom:"1.5rem", flexWrap:"wrap" }}>
         <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-forest-800">Elections</h1>
-          <p className="text-ash-300 mt-1 text-sm">Manage all school elections.</p>
+          <h1 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(1.5rem,4vw,2rem)", fontWeight:700, color:"var(--color-forest-800)" }}>
+            Elections
+          </h1>
+          <p style={{ color:"var(--color-ash-300)", fontSize:".875rem", marginTop:".25rem" }}>
+            {elections.length} election{elections.length !== 1 ? "s" : ""}
+          </p>
         </div>
-        <Link href="/admin/elections/new" className="btn-primary flex-shrink-0">
-          <span className="hidden sm:inline">+ New Election</span>
-          <span className="sm:hidden">+ New</span>
-        </Link>
+        <Link href="/admin/elections/new" className="btn-primary">+ New Election</Link>
       </div>
 
       {elections.length === 0 ? (
-        <div className="card py-20 text-center px-4">
-          <p className="text-5xl mb-4">🗳️</p>
-          <p className="font-display text-xl font-semibold text-forest-800">No elections yet</p>
-          <p className="text-ash-300 text-sm mt-2">Create your first election to get started.</p>
-          <Link href="/admin/elections/new" className="btn-primary mt-6 inline-flex">Create Election</Link>
+        <div className="card" style={{ padding:"5rem 1rem", textAlign:"center" }}>
+          <p style={{ fontSize:"3rem", marginBottom:"1rem" }}>🗳️</p>
+          <p style={{ fontFamily:"var(--font-display)", fontSize:"1.25rem", fontWeight:600 }}>No elections yet</p>
+          <p style={{ color:"var(--color-ash-300)", fontSize:".875rem", marginTop:".5rem" }}>Create your first election to get started.</p>
+          <Link href="/admin/elections/new" className="btn-primary" style={{ marginTop:"1.5rem" }}>Create Election</Link>
         </div>
       ) : (
-        <div className="grid gap-3 sm:gap-4">
+        <div style={{ display:"flex", flexDirection:"column", gap:"1rem" }}>
           {elections.map((e: any) => (
-            <div key={e.id} className="card p-4 sm:p-5 lg:p-6 flex items-stretch gap-4 hover:shadow-md transition-shadow">
-              {/* Status strip */}
-              <div className={`w-1 rounded-full flex-shrink-0 ${e.status==="active"?"bg-emerald-500":e.status==="closed"?"bg-red-400":"bg-ash-200"}`}/>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <h2 className="font-display font-semibold text-forest-800 text-base sm:text-lg leading-tight">{e.title}</h2>
-                  <StatusBadge status={e.status}/>
+            <div key={e.id} className="card" style={{ display:"flex", alignItems:"center", gap:"1rem", padding:"1.25rem", flexWrap:"wrap" }}>
+              {/* status stripe */}
+              <div style={{ width:4, alignSelf:"stretch", borderRadius:4, flexShrink:0,
+                background: e.status==="active"?"#10b981":e.status==="closed"?"#ef4444":"var(--color-ash-200)" }} />
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:".75rem", flexWrap:"wrap", marginBottom:".375rem" }}>
+                  <h2 style={{ fontFamily:"var(--font-display)", fontWeight:600, fontSize:"1.125rem" }}>{e.title}</h2>
+                  <StatusBadge status={e.status} />
                 </div>
-                {e.description && <p className="text-ash-300 text-sm line-clamp-1 mb-2">{e.description}</p>}
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                  <span className="text-xs text-ash-300">📋 {e.position_count} position{e.position_count!==1?"s":""}</span>
-                  <span className="text-xs text-ash-300">👤 {e.candidate_count} candidate{e.candidate_count!==1?"s":""}</span>
-                  <span className="text-xs text-ash-300">
-                    📅 {new Date(e.start_date).toLocaleDateString("en-UG",{day:"numeric",month:"short"})} → {new Date(e.end_date).toLocaleDateString("en-UG",{day:"numeric",month:"short",year:"numeric"})}
+                {e.description && <p style={{ color:"var(--color-ash-300)", fontSize:".8125rem", marginBottom:".5rem" }}>{e.description}</p>}
+                <div style={{ display:"flex", gap:"1rem", flexWrap:"wrap" }}>
+                  <span style={{ fontSize:".75rem", color:"var(--color-ash-300)" }}>📋 {e.position_count} position{e.position_count!==1?"s":""}</span>
+                  <span style={{ fontSize:".75rem", color:"var(--color-ash-300)" }}>👤 {e.candidate_count} candidate{e.candidate_count!==1?"s":""}</span>
+                  <span style={{ fontSize:".75rem", color:"var(--color-ash-300)" }}>
+                    📅 {new Date(e.start_date).toLocaleDateString("en-UG",{day:"numeric",month:"short",year:"numeric"})} → {new Date(e.end_date).toLocaleDateString("en-UG",{day:"numeric",month:"short",year:"numeric"})}
                   </span>
                 </div>
               </div>
-
-              <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 flex-shrink-0">
-                <Link href={`/results/${e.id}`} target="_blank"
-                  className="text-xs text-ash-300 hover:text-gold-600 transition-colors font-medium hidden sm:inline">
-                  Live ↗
-                </Link>
-                <Link href={`/admin/elections/${e.id}`} className="btn-ghost text-xs px-3 py-2 border border-ash-200">
-                  Manage
-                </Link>
-              </div>
+              <Link href={`/admin/elections/${e.id}`} className="btn-ghost"
+                style={{ border:"1px solid var(--color-ash-200)", flexShrink:0 }}>
+                Manage →
+              </Link>
             </div>
           ))}
         </div>

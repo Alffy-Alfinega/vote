@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminToken } from "./lib/auth";
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Protect /admin routes (but not /admin/login)
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
     const token = req.cookies.get("admin_token")?.value;
     if (!token) {
