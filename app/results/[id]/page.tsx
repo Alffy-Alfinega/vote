@@ -3,8 +3,8 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 
-const MAROON = "#9b4f3a";
-const CREAM  = "#f9f5c8";
+const MAROON = "#5F0D0F";
+const CREAM  = "#fdfcde";
 
 type Candidate = { id:number; name:string; class_name:string; vote_count:number; photo_url:string };
 type Position  = { id:number; title:string; candidates:Candidate[] };
@@ -31,20 +31,20 @@ function RankedRow({ candidate, rank, total, maxVotes }: { candidate:Candidate; 
 
   return (
     <div style={{
-      display:"flex", alignItems:"center", gap:"clamp(.75rem,2vw,1.25rem)",
-      padding:"clamp(.875rem,2vw,1.25rem) clamp(1rem,2.5vw,1.5rem)",
-      borderRadius:"clamp(.75rem,1.5vw,1rem)",
-      background: isFirst ? "rgba(249,245,200,.1)" : "rgba(255,255,255,.04)",
-      border: `1px solid ${isFirst ? "rgba(249,245,200,.4)" : "rgba(255,255,255,.08)"}`,
+      display:"flex", alignItems:"center", gap:"clamp(.5rem,1.5vw,.875rem)",
+      padding:"clamp(.5rem,1.2vw,.75rem) clamp(.75rem,2vw,1.25rem)",
+      borderRadius:".75rem",
+      background: isFirst ? "rgba(253,252,222,.1)" : "rgba(255,255,255,.04)",
+      border: `1px solid ${isFirst ? "rgba(253,252,222,.35)" : "rgba(255,255,255,.08)"}`,
       transition:"all .5s",
       position:"relative", overflow:"hidden",
     }}>
       {/* bar fill background */}
-      <div style={{ position:"absolute", inset:0, background: isFirst ? "rgba(249,245,200,.05)" : "rgba(255,255,255,.02)",
+      <div style={{ position:"absolute", inset:0, background: isFirst ? "rgba(253,252,222,.04)" : "rgba(255,255,255,.02)",
         width:`${barW}%`, transition:"width 1s ease", borderRadius:"inherit" }}/>
 
-      {/* Rank badge / photo */}
-      <div style={{ width:"clamp(40px,7vw,60px)", height:"clamp(40px,7vw,60px)", borderRadius:"50%", flexShrink:0,
+      {/* Photo / avatar */}
+      <div style={{ width:"clamp(32px,5vw,44px)", height:"clamp(32px,5vw,44px)", borderRadius:"50%", flexShrink:0,
         position:"relative", border:`2px solid ${isFirst ? CREAM : "rgba(255,255,255,.15)"}`, overflow:"hidden" }}>
         {candidate.photo_url
           ? <img src={candidate.photo_url} alt={candidate.name} style={{ width:"100%",height:"100%",objectFit:"cover" }}
@@ -52,43 +52,40 @@ function RankedRow({ candidate, rank, total, maxVotes }: { candidate:Candidate; 
           : null}
         <div style={{ width:"100%",height:"100%",display: candidate.photo_url ? "none" : "flex",alignItems:"center",justifyContent:"center",
           fontFamily:"var(--font-display)",fontWeight:700,
-          fontSize:"clamp(.875rem,2vw,1.25rem)",
+          fontSize:"clamp(.75rem,1.5vw,1rem)",
           background: isFirst ? CREAM : "rgba(255,255,255,.1)",
           color: isFirst ? MAROON : "rgba(255,255,255,.5)" }}>
           {candidate.name.charAt(0)}
         </div>
       </div>
 
-      {/* Rank number */}
-      <div style={{ width:"clamp(24px,4vw,36px)", textAlign:"center", flexShrink:0 }}>
-        {isFirst
-          ? <span style={{ fontSize:"clamp(1.25rem,3vw,2rem)" }}>🥇</span>
-          : rank === 2 ? <span style={{ fontSize:"clamp(1.1rem,2.5vw,1.75rem)" }}>🥈</span>
-          : rank === 3 ? <span style={{ fontSize:"clamp(1rem,2.2vw,1.5rem)" }}>🥉</span>
-          : <span style={{ fontFamily:"var(--font-display)", fontWeight:700, fontSize:"clamp(.875rem,2vw,1.25rem)", color:"rgba(255,255,255,.3)" }}>#{rank}</span>}
+      {/* Medal */}
+      <div style={{ width:"clamp(20px,3vw,28px)", textAlign:"center", flexShrink:0, fontSize:"clamp(.9rem,2vw,1.25rem)" }}>
+        {rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉"
+          : <span style={{ fontFamily:"var(--font-display)", fontWeight:700, fontSize:"clamp(.75rem,1.5vw,1rem)", color:"rgba(255,255,255,.3)" }}>#{rank}</span>}
       </div>
 
       {/* Name + class */}
       <div style={{ flex:1, minWidth:0, position:"relative" }}>
         <p style={{ fontFamily:"var(--font-display)", fontWeight:700,
-          fontSize:"clamp(.9375rem,2.5vw,1.5rem)", color: isFirst ? CREAM : "white",
+          fontSize:"clamp(.875rem,2vw,1.25rem)", color: isFirst ? CREAM : "white",
           overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
           {candidate.name}
         </p>
         {candidate.class_name && (
-          <p style={{ fontSize:"clamp(.7rem,1.2vw,.875rem)", color:"rgba(255,255,255,.4)", marginTop:2 }}>{candidate.class_name}</p>
+          <p style={{ fontSize:"clamp(.65rem,1vw,.8rem)", color:"rgba(255,255,255,.4)", marginTop:1 }}>{candidate.class_name}</p>
         )}
       </div>
 
       {/* Vote count + pct */}
       <div style={{ textAlign:"right", flexShrink:0, position:"relative" }}>
         <p style={{ fontFamily:"var(--font-display)", fontWeight:700,
-          fontSize:"clamp(1.5rem,5vw,3.5rem)", lineHeight:1,
+          fontSize:"clamp(1.125rem,3.5vw,2.25rem)", lineHeight:1,
           color: isFirst ? CREAM : "rgba(255,255,255,.8)" }}>
           {candidate.vote_count}
         </p>
-        <p style={{ fontSize:"clamp(.65rem,1.2vw,.8125rem)", color:"rgba(255,255,255,.4)", marginTop:2 }}>
-          {pct}% of votes
+        <p style={{ fontSize:"clamp(.6rem,1vw,.75rem)", color:"rgba(255,255,255,.4)", marginTop:1 }}>
+          {pct}%
         </p>
       </div>
     </div>
@@ -124,7 +121,7 @@ export default function LiveResultsPage() {
   }, [data?.positions.length]);
 
   if (!data) return (
-    <div style={{ minHeight:"100dvh", display:"flex", alignItems:"center", justifyContent:"center", background:`linear-gradient(135deg, #1e0e08 0%, ${MAROON} 50%, #6b3020 100%)` }}>
+    <div style={{ minHeight:"100dvh", display:"flex", alignItems:"center", justifyContent:"center", background:`linear-gradient(135deg, #1a0304 0%, ${MAROON} 50%, #3d0709 100%)` }}>
       <div style={{ textAlign:"center" }}>
         <svg style={{ width:48,height:48,margin:"0 auto 1rem" }} className="animate-spin" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke={CREAM} strokeWidth="4"/>
@@ -143,12 +140,12 @@ export default function LiveResultsPage() {
 
   return (
     <div style={{ minHeight:"100dvh", color:"white", display:"flex", flexDirection:"column",
-      background:`linear-gradient(160deg, #1e0e08 0%, ${MAROON} 45%, #6b3020 100%)`,
+      background:`linear-gradient(160deg, #1a0304 0%, ${MAROON} 45%, #3d0709 100%)`,
       position:"relative", overflow:"hidden" }}>
 
       {/* subtle dot grid */}
       <div style={{ position:"absolute", inset:0, opacity:.04, pointerEvents:"none",
-        backgroundImage:"radial-gradient(circle at 1px 1px, #f9f5c8 1px, transparent 0)", backgroundSize:"32px 32px" }}/>
+        backgroundImage:"radial-gradient(circle at 1px 1px, #fdfcde 1px, transparent 0)", backgroundSize:"32px 32px" }}/>
 
       {/* ── HEADER ── */}
       <header style={{ padding:"clamp(.875rem,2vw,1.25rem) clamp(1rem,3vw,2.5rem)",
@@ -238,7 +235,7 @@ export default function LiveResultsPage() {
             </div>
 
             {/* Candidates — sorted list, re-ranks on every update */}
-            <div style={{ display:"flex", flexDirection:"column", gap:"clamp(.5rem,1.2vw,.875rem)",
+            <div style={{ display:"flex", flexDirection:"column", gap:"clamp(.375rem,.8vw,.5rem)",
               maxWidth:"56rem", margin:"0 auto" }}>
               {sorted.map((c, i) => (
                 <RankedRow key={c.id} candidate={c} rank={i+1}

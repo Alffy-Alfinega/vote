@@ -3,8 +3,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-const MAROON = "#9b4f3a";
-const CREAM  = "#f9f5c8";
+const MAROON = "#5F0D0F";
+const CREAM  = "#fdfcde";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -25,9 +25,9 @@ export default function AdminLoginPage() {
 
   return (
     <div style={{ minHeight:"100svh", display:"flex", alignItems:"center", justifyContent:"center", padding:"1.5rem",
-      background:`linear-gradient(160deg, ${MAROON} 0%, #6b3020 60%, #1e0e08 100%)` }}>
+      background:`linear-gradient(160deg, ${MAROON} 0%, #3d0709 60%, #1a0304 100%)` }}>
       <div style={{ position:"absolute", inset:0, opacity:.06, pointerEvents:"none",
-        backgroundImage:"radial-gradient(circle at 1px 1px, #f9f5c8 1px, transparent 0)", backgroundSize:"28px 28px" }}/>
+        backgroundImage:"radial-gradient(circle at 1px 1px, #fdfcde 1px, transparent 0)", backgroundSize:"28px 28px" }}/>
       <div style={{ position:"relative", width:"100%", maxWidth:400 }}>
         {/* Emblem + school name */}
         <div style={{ textAlign:"center", marginBottom:"2rem" }}>

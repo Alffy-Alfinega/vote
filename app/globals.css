@@ -2,14 +2,14 @@
 
 @theme {
   /* ── Makindye Secondary School brand colors ── */
-  --color-maroon-950: #1e0e08;
-  --color-maroon-900: #6b3020;
-  --color-maroon-800: #9b4f3a;   /* primary — exact logo maroon */
-  --color-maroon-700: #b05a42;
-  --color-maroon-600: #c4694f;
+  --color-maroon-950: #1a0304;
+  --color-maroon-900: #3d0709;
+  --color-maroon-800: #5F0D0F;   /* primary — exact logo maroon */
+  --color-maroon-700: #7a1012;
+  --color-maroon-600: #8b1315;
 
   --color-cream-50:  #fdfcf4;
-  --color-cream-100: #f9f5c8;   /* exact logo cream/background */
+  --color-cream-100: #fdfcde;   /* exact logo cream/background */
   --color-cream-200: #f0e99a;
   --color-cream-300: #e0d870;
 

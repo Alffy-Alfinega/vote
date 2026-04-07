@@ -4,8 +4,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 
-const MAROON = "#9b4f3a";
-const CREAM  = "#f9f5c8";
+const MAROON = "#5F0D0F";
+const CREAM  = "#fdfcde";
 
 const NAV = [
   { label:"Dashboard",  href:"/admin",

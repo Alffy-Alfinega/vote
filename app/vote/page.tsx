@@ -2,8 +2,8 @@
 import { useState } from "react";
 import Image from "next/image";
 
-const MAROON = "#9b4f3a";
-const CREAM  = "#f9f5c8";
+const MAROON = "#5F0D0F";
+const CREAM  = "#fdfcde";
 
 type Election  = { id:number; title:string; description:string };
 type Candidate = { id:number; name:string; class_name:string; bio:string; photo_url:string };
@@ -74,7 +74,7 @@ export default function VotePage() {
   /* ── DONE ── */
   if (step === "done") return (
     <div style={{ minHeight:"100svh", display:"flex", alignItems:"center", justifyContent:"center", padding:"1.5rem",
-      background:`linear-gradient(160deg, ${MAROON} 0%, #6b3020 100%)` }}>
+      background:`linear-gradient(160deg, ${MAROON} 0%, #3d0709 100%)` }}>
       <div className="card" style={{ padding:"2.5rem 2rem", maxWidth:400, width:"100%", textAlign:"center" }}>
         <div style={{ width:72,height:72,borderRadius:"50%",background:"#ecfdf5",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 1.25rem" }}>
           <svg style={{ width:36,height:36,color:"#10b981" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,9 +101,9 @@ export default function VotePage() {
   /* ── LOGIN ── */
   if (step === "login") return (
     <div style={{ minHeight:"100svh", display:"flex", alignItems:"center", justifyContent:"center", padding:"1.5rem",
-      background:`linear-gradient(160deg, ${MAROON} 0%, #6b3020 60%, #1e0e08 100%)` }}>
+      background:`linear-gradient(160deg, ${MAROON} 0%, #3d0709 60%, #1a0304 100%)` }}>
       <div style={{ position:"absolute", inset:0, opacity:.06, pointerEvents:"none",
-        backgroundImage:"radial-gradient(circle at 1px 1px, #f9f5c8 1px, transparent 0)", backgroundSize:"28px 28px" }}/>
+        backgroundImage:"radial-gradient(circle at 1px 1px, #fdfcde 1px, transparent 0)", backgroundSize:"28px 28px" }}/>
       <div style={{ position:"relative", width:"100%", maxWidth:400 }}>
         <div style={{ textAlign:"center", marginBottom:"2rem" }}>
           <div style={{ width:80,height:80,borderRadius:"50%",margin:"0 auto 1rem",border:`3px solid rgba(249,245,200,.35)`,overflow:"hidden",boxShadow:"0 8px 24px rgba(0,0,0,.3)" }}>
@@ -197,7 +197,7 @@ export default function VotePage() {
                       </div>
                     </div>
                     <div style={{ flex:1, minWidth:0 }}>
-                      <p style={{ fontWeight:600, fontSize:".9375rem", color: sel ? MAROON : "#1e0e08" }}>{c.name}</p>
+                      <p style={{ fontWeight:600, fontSize:".9375rem", color: sel ? MAROON : "#1a0304" }}>{c.name}</p>
                       {c.class_name && <p style={{ fontSize:".8125rem", color:"var(--color-ash-300)" }}>{c.class_name}</p>}
                     </div>
                     <div style={{ width:20,height:20,borderRadius:"50%",border:`2px solid ${sel ? MAROON : "var(--color-ash-200)"}`,
