@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
           </p>
         </div>
 
-        <div className="card" style={{ padding:"1.75rem", background:"white" }}>
+        <div className="card" style={{ padding:"1.75rem", background:"#fdfcde" }}>
           <h2 style={{ fontFamily:"var(--font-display)", fontWeight:600, fontSize:"1.125rem", marginBottom:"1.25rem", color:MAROON }}>Sign in</h2>
           <form onSubmit={handleSubmit} style={{ display:"flex", flexDirection:"column", gap:"1rem" }}>
             <div>

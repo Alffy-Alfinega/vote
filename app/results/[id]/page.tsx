@@ -24,7 +24,7 @@ function LiveClock() {
 }
 
 // Ranked list row — sorted by votes descending
-function RankedRow({ candidate, rank, total, maxVotes }: { candidate:Candidate; rank:number; total:number; maxVotes:number }) {
+function RankedRow({ candidate, rank, total, maxVotes, isSpotlit }: { candidate:Candidate; rank:number; total:number; maxVotes:number; isSpotlit:boolean }) {
   const pct = total === 0 ? 0 : Math.round((candidate.vote_count / total) * 100);
   const barW = maxVotes === 0 ? 0 : (candidate.vote_count / maxVotes) * 100;
   const isFirst = rank === 1;
@@ -34,9 +34,11 @@ function RankedRow({ candidate, rank, total, maxVotes }: { candidate:Candidate; 
       display:"flex", alignItems:"center", gap:"clamp(.5rem,1.5vw,.875rem)",
       padding:"clamp(.5rem,1.2vw,.75rem) clamp(.75rem,2vw,1.25rem)",
       borderRadius:".75rem",
-      background: isFirst ? "rgba(253,252,222,.1)" : "rgba(255,255,255,.04)",
-      border: `1px solid ${isFirst ? "rgba(253,252,222,.35)" : "rgba(255,255,255,.08)"}`,
-      transition:"all .5s",
+      background: isSpotlit ? "rgba(253,252,222,.15)" : isFirst ? "rgba(253,252,222,.08)" : "rgba(255,255,255,.04)",
+      border: `1px solid ${isSpotlit ? "rgba(253,252,222,.55)" : isFirst ? "rgba(253,252,222,.25)" : "rgba(255,255,255,.08)"}`,
+      boxShadow: isSpotlit ? "0 0 0 2px rgba(253,252,222,.2), 0 4px 24px rgba(0,0,0,.3)" : "none",
+      transform: isSpotlit ? "scale(1.012)" : "scale(1)",
+      transition:"all .4s ease",
       position:"relative", overflow:"hidden",
     }}>
       {/* bar fill background */}
@@ -68,7 +70,7 @@ function RankedRow({ candidate, rank, total, maxVotes }: { candidate:Candidate; 
       {/* Name + class */}
       <div style={{ flex:1, minWidth:0, position:"relative" }}>
         <p style={{ fontFamily:"var(--font-display)", fontWeight:700,
-          fontSize:"clamp(.875rem,2vw,1.25rem)", color: isFirst ? CREAM : "white",
+          fontSize:"clamp(.875rem,2vw,1.25rem)", color: isFirst ? CREAM : "#fdfcde",
           overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
           {candidate.name}
         </p>
@@ -98,8 +100,10 @@ export default function LiveResultsPage() {
   const [lastUpdated, setLastUpdated] = useState<Date|null>(null);
   const [pulse, setPulse]             = useState(false);
   const [currentPos, setCurrentPos]   = useState(0);
+  const [highlightIdx, setHighlightIdx] = useState(0); // which candidate is highlighted
   const carouselRef = useRef<ReturnType<typeof setInterval>|null>(null);
   const REFRESH = 10000;
+  const CANDIDATE_INTERVAL = 5000; // 5s per candidate
 
   const fetchResults = useCallback(async () => {
     try {
@@ -113,12 +117,24 @@ export default function LiveResultsPage() {
 
   useEffect(() => { fetchResults(); const i = setInterval(fetchResults, REFRESH); return () => clearInterval(i); }, [fetchResults]);
 
+  // Cycle through candidates every 5s; when exhausted, move to next position
   useEffect(() => {
-    if (!data || data.positions.length <= 1) return;
+    if (!data) return;
+    const positions = data.positions;
+    if (!positions.length) return;
     if (carouselRef.current) clearInterval(carouselRef.current);
-    carouselRef.current = setInterval(() => setCurrentPos(p => (p+1) % data.positions.length), 10000);
+    carouselRef.current = setInterval(() => {
+      setHighlightIdx(prev => {
+        const pos = positions[currentPos] ?? positions[0];
+        const count = pos?.candidates.length ?? 1;
+        if (prev + 1 < count) return prev + 1;
+        // Exhausted candidates for this position — move to next position
+        setCurrentPos(p => (p + 1) % positions.length);
+        return 0;
+      });
+    }, CANDIDATE_INTERVAL);
     return () => { if (carouselRef.current) clearInterval(carouselRef.current); };
-  }, [data?.positions.length]);
+  }, [data, currentPos]);
 
   if (!data) return (
     <div style={{ minHeight:"100dvh", display:"flex", alignItems:"center", justifyContent:"center", background:`linear-gradient(135deg, #1a0304 0%, ${MAROON} 50%, #3d0709 100%)` }}>
@@ -137,9 +153,10 @@ export default function LiveResultsPage() {
   // Sort candidates by votes descending on each render
   const sorted = pos ? [...pos.candidates].sort((a,b) => b.vote_count - a.vote_count) : [];
   const totalForPos = sorted.reduce((s,c) => s+c.vote_count, 0);
+  const safeHighlight = highlightIdx % Math.max(sorted.length, 1);
 
   return (
-    <div style={{ minHeight:"100dvh", color:"white", display:"flex", flexDirection:"column",
+    <div style={{ minHeight:"100dvh", color:"#fdfcde", display:"flex", flexDirection:"column",
       background:`linear-gradient(160deg, #1a0304 0%, ${MAROON} 45%, #3d0709 100%)`,
       position:"relative", overflow:"hidden" }}>
 
@@ -197,7 +214,7 @@ export default function LiveResultsPage() {
             {i > 0 && <div style={{ width:1,height:32,background:"rgba(249,245,200,.12)",marginRight:"clamp(.75rem,3vw,3rem)" }}/>}
             <div>
               <p style={{ fontSize:"clamp(.6rem,.9vw,.7rem)", color:"rgba(249,245,200,.4)", textTransform:"uppercase", letterSpacing:".08em", marginBottom:2 }}>{s.label}</p>
-              <p style={{ fontFamily:"var(--font-display)", fontWeight:700, fontSize:"clamp(1.125rem,3vw,1.875rem)", lineHeight:1, color: s.label==="Turnout" ? CREAM : "white" }}>{s.value}</p>
+              <p style={{ fontFamily:"var(--font-display)", fontWeight:700, fontSize:"clamp(1.125rem,3vw,1.875rem)", lineHeight:1, color: "#fdfcde" }}>{s.value}</p>
             </div>
           </div>
         ))}
@@ -239,7 +256,8 @@ export default function LiveResultsPage() {
               maxWidth:"56rem", margin:"0 auto" }}>
               {sorted.map((c, i) => (
                 <RankedRow key={c.id} candidate={c} rank={i+1}
-                  total={totalForPos} maxVotes={sorted[0]?.vote_count ?? 0}/>
+                  total={totalForPos} maxVotes={sorted[0]?.vote_count ?? 0}
+                  isSpotlit={i === safeHighlight}/>
               ))}
             </div>
 

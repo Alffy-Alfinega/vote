@@ -204,7 +204,7 @@ export default function StudentsPage() {
                     </td>
                     <td className="table-cell">
                       <div style={{ display:"flex", gap:".375rem" }}>
-                        <button onClick={() => openEdit(s)} style={{ padding:".375rem .75rem", borderRadius:".5rem", border:"1px solid var(--color-ash-200)", background:"white", cursor:"pointer", fontSize:".8125rem", fontWeight:500, color:"var(--color-forest-800)", minHeight:36 }}>Edit</button>
+                        <button onClick={() => openEdit(s)} style={{ padding:".375rem .75rem", borderRadius:".5rem", border:"1px solid var(--color-ash-200)", background:"#fdfcde", cursor:"pointer", fontSize:".8125rem", fontWeight:500, color:"var(--color-forest-800)", minHeight:36 }}>Edit</button>
                         <button onClick={() => handleDelete(s.id, s.name)} className="btn-danger" style={{ fontSize:".8125rem", minHeight:36, padding:".375rem .75rem" }}>Delete</button>
                       </div>
                     </td>

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
 const MAROON = "#5F0D0F";
@@ -18,25 +18,54 @@ export default function VotePage() {
   const [election, setElection] = useState<Election|null>(null);
   const [positions, setPositions] = useState<Position[]>([]);
   const [electionId, setElectionId] = useState<number|null>(null);
+  const [activeElection, setActiveElection] = useState<{ id:number }|null>(null);
   const [selections, setSelections] = useState<Record<number,number>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitErr, setSubmitErr]   = useState("");
 
+  // Pre-fetch active election on mount so login submit is instant
+  useEffect(() => {
+    fetch("/api/elections/active")
+      .then(r => r.json())
+      .then(data => { if (data.length) setActiveElection(data[0]); })
+      .catch(() => {});
+  }, []);
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault(); setLoginLoading(true); setLoginErr("");
     try {
-      const eRes  = await fetch("/api/elections/active");
-      const eData = await eRes.json();
-      if (!eRes.ok) throw new Error(eData.error);
-      if (!eData.length) throw new Error("No active elections at this time.");
-      const active = eData[0];
-      const checkRes = await fetch("/api/vote/check", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({ student_id:login.student_id, pin:login.pin, election_id:active.id }),
-      });
+      const eid = activeElection?.id;
+      if (!eid) {
+        // Fallback: fetch now if pre-fetch didn't complete
+        const eRes  = await fetch("/api/elections/active");
+        const eData = await eRes.json();
+        if (!eRes.ok || !eData.length) throw new Error("No active elections at this time.");
+        setActiveElection(eData[0]);
+      }
+      const resolvedId = activeElection?.id ?? (await fetch("/api/elections/active").then(r=>r.json()).then((d:any[])=>d[0]?.id));
+      if (!resolvedId) throw new Error("No active elections at this time.");
+
+      // Parallel: credential check + ballot prefetch at the same time
+      const [checkRes, eR, pR] = await Promise.all([
+        fetch("/api/vote/check", {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({ student_id:login.student_id, pin:login.pin, election_id:resolvedId }),
+        }),
+        fetch(`/api/elections/${resolvedId}`),
+        fetch(`/api/positions?election_id=${resolvedId}`),
+      ]);
       const checkData = await checkRes.json();
       if (!checkRes.ok) throw new Error(checkData.error);
-      await loadBallot(active.id);
+
+      const elec  = await eR.json();
+      const pData = await pR.json();
+      const posWithCands: Position[] = await Promise.all(
+        pData.map(async (p: any) => {
+          const cR = await fetch(`/api/candidates?position_id=${p.id}`);
+          return { ...p, candidates: await cR.json() };
+        })
+      );
+      setElection(elec); setPositions(posWithCands); setElectionId(resolvedId); setStep("ballot");
     } catch (err: unknown) { setLoginErr(err instanceof Error ? err.message : "Error"); }
     finally { setLoginLoading(false); }
   }
@@ -184,7 +213,7 @@ export default function VotePage() {
                   <button key={c.id} onClick={() => setSelections(p => ({...p, [pos.id]:c.id}))}
                     style={{ width:"100%", textAlign:"left", padding:"1rem", borderRadius:".75rem",
                       border:`2px solid ${sel ? MAROON : "var(--color-ash-200)"}`,
-                      background: sel ? `rgba(113,16,16,.06)` : "white",
+                      background: sel ? `rgba(113,16,16,.06)` : "#fdfcde",
                       cursor:"pointer", transition:"all .15s", display:"flex", alignItems:"center", gap:".875rem" }}>
                     <div style={{ width:44,height:44,borderRadius:"50%",flexShrink:0,overflow:"hidden",
                       border:`2px solid ${sel ? MAROON : "var(--color-ash-200)"}` }}>
@@ -217,7 +246,7 @@ export default function VotePage() {
         {submitErr && <div style={{ background:"#fef2f2", border:"1px solid #fecaca", borderRadius:".75rem", padding:".875rem 1rem", marginBottom:"1rem" }}><p style={{ fontSize:".875rem", color:"#991b1b" }}>{submitErr}</p></div>}
       </div>
 
-      <div style={{ position:"fixed", bottom:0, left:0, right:0, padding:"1rem", background:"white", borderTop:"1px solid var(--color-ash-200)", boxShadow:"0 -4px 24px rgba(0,0,0,.08)" }}>
+      <div style={{ position:"fixed", bottom:0, left:0, right:0, padding:"1rem", background:"#fdfcde", borderTop:"1px solid var(--color-ash-200)", boxShadow:"0 -4px 24px rgba(0,0,0,.08)" }}>
         <div style={{ maxWidth:640, margin:"0 auto" }}>
           <button onClick={handleSubmit} disabled={!allAnswered||submitting}
             style={{ width:"100%", padding:"1rem", borderRadius:"1rem", border:"none",
