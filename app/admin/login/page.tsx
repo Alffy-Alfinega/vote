@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-const MAROON = "#711010";
+const MAROON = "#9b4f3a";
 const CREAM  = "#f9f5c8";
 
 export default function AdminLoginPage() {
@@ -25,7 +25,7 @@ export default function AdminLoginPage() {
 
   return (
     <div style={{ minHeight:"100svh", display:"flex", alignItems:"center", justifyContent:"center", padding:"1.5rem",
-      background:`linear-gradient(160deg, ${MAROON} 0%, #4a0808 60%, #2a0404 100%)` }}>
+      background:`linear-gradient(160deg, ${MAROON} 0%, #6b3020 60%, #1e0e08 100%)` }}>
       <div style={{ position:"absolute", inset:0, opacity:.06, pointerEvents:"none",
         backgroundImage:"radial-gradient(circle at 1px 1px, #f9f5c8 1px, transparent 0)", backgroundSize:"28px 28px" }}/>
       <div style={{ position:"relative", width:"100%", maxWidth:400 }}>

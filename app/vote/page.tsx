@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Image from "next/image";
 
-const MAROON = "#711010";
+const MAROON = "#9b4f3a";
 const CREAM  = "#f9f5c8";
 
 type Election  = { id:number; title:string; description:string };
@@ -74,7 +74,7 @@ export default function VotePage() {
   /* ── DONE ── */
   if (step === "done") return (
     <div style={{ minHeight:"100svh", display:"flex", alignItems:"center", justifyContent:"center", padding:"1.5rem",
-      background:`linear-gradient(160deg, ${MAROON} 0%, #4a0808 100%)` }}>
+      background:`linear-gradient(160deg, ${MAROON} 0%, #6b3020 100%)` }}>
       <div className="card" style={{ padding:"2.5rem 2rem", maxWidth:400, width:"100%", textAlign:"center" }}>
         <div style={{ width:72,height:72,borderRadius:"50%",background:"#ecfdf5",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 1.25rem" }}>
           <svg style={{ width:36,height:36,color:"#10b981" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,7 +101,7 @@ export default function VotePage() {
   /* ── LOGIN ── */
   if (step === "login") return (
     <div style={{ minHeight:"100svh", display:"flex", alignItems:"center", justifyContent:"center", padding:"1.5rem",
-      background:`linear-gradient(160deg, ${MAROON} 0%, #4a0808 60%, #2a0404 100%)` }}>
+      background:`linear-gradient(160deg, ${MAROON} 0%, #6b3020 60%, #1e0e08 100%)` }}>
       <div style={{ position:"absolute", inset:0, opacity:.06, pointerEvents:"none",
         backgroundImage:"radial-gradient(circle at 1px 1px, #f9f5c8 1px, transparent 0)", backgroundSize:"28px 28px" }}/>
       <div style={{ position:"relative", width:"100%", maxWidth:400 }}>
@@ -197,7 +197,7 @@ export default function VotePage() {
                       </div>
                     </div>
                     <div style={{ flex:1, minWidth:0 }}>
-                      <p style={{ fontWeight:600, fontSize:".9375rem", color: sel ? MAROON : "#2a0404" }}>{c.name}</p>
+                      <p style={{ fontWeight:600, fontSize:".9375rem", color: sel ? MAROON : "#1e0e08" }}>{c.name}</p>
                       {c.class_name && <p style={{ fontSize:".8125rem", color:"var(--color-ash-300)" }}>{c.class_name}</p>}
                     </div>
                     <div style={{ width:20,height:20,borderRadius:"50%",border:`2px solid ${sel ? MAROON : "var(--color-ash-200)"}`,

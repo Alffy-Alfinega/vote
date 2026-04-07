@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 
-const MAROON = "#711010";
+const MAROON = "#9b4f3a";
 const CREAM  = "#f9f5c8";
 
 type Candidate = { id:number; name:string; class_name:string; vote_count:number; photo_url:string };
@@ -124,7 +124,7 @@ export default function LiveResultsPage() {
   }, [data?.positions.length]);
 
   if (!data) return (
-    <div style={{ minHeight:"100dvh", display:"flex", alignItems:"center", justifyContent:"center", background:`linear-gradient(135deg, #2a0404 0%, ${MAROON} 50%, #4a0808 100%)` }}>
+    <div style={{ minHeight:"100dvh", display:"flex", alignItems:"center", justifyContent:"center", background:`linear-gradient(135deg, #1e0e08 0%, ${MAROON} 50%, #6b3020 100%)` }}>
       <div style={{ textAlign:"center" }}>
         <svg style={{ width:48,height:48,margin:"0 auto 1rem" }} className="animate-spin" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke={CREAM} strokeWidth="4"/>
@@ -143,7 +143,7 @@ export default function LiveResultsPage() {
 
   return (
     <div style={{ minHeight:"100dvh", color:"white", display:"flex", flexDirection:"column",
-      background:`linear-gradient(160deg, #2a0404 0%, ${MAROON} 45%, #4a0808 100%)`,
+      background:`linear-gradient(160deg, #1e0e08 0%, ${MAROON} 45%, #6b3020 100%)`,
       position:"relative", overflow:"hidden" }}>
 
       {/* subtle dot grid */}

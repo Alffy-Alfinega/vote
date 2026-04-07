@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 
-const MAROON = "#711010";
+const MAROON = "#9b4f3a";
 const CREAM  = "#f9f5c8";
 
 const NAV = [

@@ -2,11 +2,11 @@
 
 @theme {
   /* ── Makindye Secondary School brand colors ── */
-  --color-maroon-950: #2a0404;
-  --color-maroon-900: #4a0808;
-  --color-maroon-800: #711010;   /* primary — exact logo maroon */
-  --color-maroon-700: #8b1515;
-  --color-maroon-600: #a01a1a;
+  --color-maroon-950: #1e0e08;
+  --color-maroon-900: #6b3020;
+  --color-maroon-800: #9b4f3a;   /* primary — exact logo maroon */
+  --color-maroon-700: #b05a42;
+  --color-maroon-600: #c4694f;
 
   --color-cream-50:  #fdfcf4;
   --color-cream-100: #f9f5c8;   /* exact logo cream/background */
