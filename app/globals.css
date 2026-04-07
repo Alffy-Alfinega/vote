@@ -1,21 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  --color-forest-950: #050f08;
-  --color-forest-900: #0a1f10;
-  --color-forest-800: #0d2818;
-  --color-forest-700: #133520;
-  --color-forest-600: #1a4529;
+  /* ── Makindye Secondary School brand colors ── */
+  --color-maroon-950: #2a0404;
+  --color-maroon-900: #4a0808;
+  --color-maroon-800: #711010;   /* primary — exact logo maroon */
+  --color-maroon-700: #8b1515;
+  --color-maroon-600: #a01a1a;
 
-  --color-gold-300: #f5dd8a;
-  --color-gold-400: #f0cc5a;
-  --color-gold-500: #e8b84b;
-  --color-gold-600: #d49e30;
+  --color-cream-50:  #fdfcf4;
+  --color-cream-100: #f9f5c8;   /* exact logo cream/background */
+  --color-cream-200: #f0e99a;
+  --color-cream-300: #e0d870;
 
-  --color-ash-50:  #f7f8f5;
-  --color-ash-100: #eef0eb;
-  --color-ash-200: #dde1d7;
-  --color-ash-300: #c2c9b9;
+  /* keep neutral grays for UI chrome */
+  --color-ash-50:  #f8f8f5;
+  --color-ash-100: #eeeeeb;
+  --color-ash-200: #ddddd7;
+  --color-ash-300: #b0b0a8;
 
   --font-display: "Playfair Display", Georgia, serif;
   --font-body:    "IBM Plex Sans", system-ui, sans-serif;
@@ -25,11 +27,11 @@
   *, *::before, *::after { box-sizing: border-box; }
   :root { --sidebar-w: 260px; }
   html  { -webkit-text-size-adjust: 100%; }
-  body  { font-family: var(--font-body); background: var(--color-ash-50); color: var(--color-forest-800); }
-  ::selection { background: #e8b84b44; color: #0d2818; }
+  body  { font-family: var(--font-body); background: var(--color-ash-50); color: #2a0404; }
+  ::selection { background: rgba(113,16,16,.2); color: #2a0404; }
   ::-webkit-scrollbar       { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #c2c9b9; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb { background: #c0b090; border-radius: 3px; }
 }
 
 @layer components {
@@ -37,7 +39,7 @@
     background: white;
     border-radius: 1rem;
     border: 1px solid var(--color-ash-200);
-    box-shadow: 0 1px 3px rgb(0 0 0 / .05);
+    box-shadow: 0 1px 4px rgb(0 0 0 / .06);
   }
 
   .input {
@@ -46,71 +48,69 @@
     border-radius: .75rem;
     border: 1px solid var(--color-ash-200);
     background: white;
-    color: var(--color-forest-800);
+    color: #2a0404;
     font-size: .875rem;
     font-family: var(--font-body);
     min-height: 48px;
-    transition: border-color .15s, box-shadow .15s;
     outline: none;
     -webkit-appearance: none;
+    transition: border-color .15s, box-shadow .15s;
   }
   .input::placeholder { color: var(--color-ash-300); }
   .input:focus {
-    border-color: var(--color-gold-500);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-gold-500) 20%, transparent);
+    border-color: var(--color-maroon-800);
+    box-shadow: 0 0 0 3px rgba(113,16,16,.15);
   }
   .textarea { resize: none; }
 
   .btn-primary {
     display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
     padding: .75rem 1.25rem; border-radius: .75rem;
-    background: var(--color-gold-500); color: var(--color-forest-900);
-    font-weight: 500; font-size: .875rem;
+    background: var(--color-maroon-800); color: var(--color-cream-100);
+    font-weight: 600; font-size: .875rem; letter-spacing: .01em;
     cursor: pointer; user-select: none;
     border: none; outline: none;
     transition: background .15s, box-shadow .15s, transform .1s;
-    box-shadow: 0 1px 3px rgb(0 0 0/.1);
+    box-shadow: 0 2px 6px rgba(113,16,16,.25);
     min-height: 48px; white-space: nowrap;
   }
-  .btn-primary:hover    { background: var(--color-gold-600); box-shadow: 0 4px 12px rgb(0 0 0/.12); }
+  .btn-primary:hover    { background: var(--color-maroon-900); box-shadow: 0 4px 14px rgba(113,16,16,.3); }
   .btn-primary:active   { transform: scale(.98); }
   .btn-primary:disabled { opacity: .55; cursor: not-allowed; }
 
   .btn-ghost {
     display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
     padding: .75rem 1rem; border-radius: .75rem;
-    color: var(--color-forest-700);
+    color: var(--color-maroon-800);
     font-weight: 500; font-size: .875rem;
     cursor: pointer; user-select: none;
     background: transparent; border: none; outline: none;
     transition: background .15s;
     min-height: 48px; white-space: nowrap;
   }
-  .btn-ghost:hover { background: var(--color-ash-100); }
+  .btn-ghost:hover { background: rgba(113,16,16,.07); }
 
   .btn-danger {
     display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
     padding: .625rem 1rem; border-radius: .5rem;
-    color: #dc2626; font-size: .875rem;
+    color: #991b1b; font-size: .875rem;
     cursor: pointer; background: transparent; border: none; outline: none;
     transition: background .15s; min-height: 44px;
   }
   .btn-danger:hover { background: #fef2f2; }
 
   .badge-draft  { display:inline-flex;align-items:center;gap:.375rem;padding:.25rem .75rem;border-radius:9999px;font-size:.75rem;font-weight:500;background:var(--color-ash-100);color:var(--color-ash-300); }
-  .badge-active { display:inline-flex;align-items:center;gap:.375rem;padding:.25rem .75rem;border-radius:9999px;font-size:.75rem;font-weight:500;background:#ecfdf5;color:#065f46; }
-  .badge-closed { display:inline-flex;align-items:center;gap:.375rem;padding:.25rem .75rem;border-radius:9999px;font-size:.75rem;font-weight:500;background:#fef2f2;color:#dc2626; }
+  .badge-active { display:inline-flex;align-items:center;gap:.375rem;padding:.25rem .75rem;border-radius:9999px;font-size:.75rem;font-weight:500;background:#fef9ec;color:#92400e; }
+  .badge-closed { display:inline-flex;align-items:center;gap:.375rem;padding:.25rem .75rem;border-radius:9999px;font-size:.75rem;font-weight:500;background:#fef2f2;color:#991b1b; }
 
-  .table-head { font-size:.75rem;font-weight:500;color:var(--color-ash-300);text-transform:uppercase;letter-spacing:.05em; }
-  .table-cell { padding:.875rem 1rem;font-size:.875rem;color:var(--color-forest-800); }
+  .table-head { font-size:.75rem;font-weight:600;color:var(--color-ash-300);text-transform:uppercase;letter-spacing:.06em; }
+  .table-cell { padding:.875rem 1rem;font-size:.875rem;color:#2a0404; }
   .table-row  { border-bottom:1px solid var(--color-ash-100);transition:background .1s; }
   .table-row:last-child { border-bottom:none; }
-  .table-row:hover { background:var(--color-ash-50); }
+  .table-row:hover { background:rgba(113,16,16,.03); }
 
-  /* Tailwind helper classes used in JSX */
   .animate-spin { animation: _spin 1s linear infinite; }
   @keyframes _spin { to { transform: rotate(360deg); } }
-
   .opacity-25 { opacity: .25; }
   .opacity-75 { opacity: .75; }
 }
